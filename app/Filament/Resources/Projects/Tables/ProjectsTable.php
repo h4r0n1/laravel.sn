@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Projects\Tables;
 
+use App\Enums\ProjectStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class ProjectsTable
@@ -23,8 +25,8 @@ class ProjectsTable
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn ($state) => match ($state) {
-                        \App\Enums\ProjectStatus::Pending => 'danger',
-                        \App\Enums\ProjectStatus::Approved => 'success',
+                        ProjectStatus::Pending => 'danger',
+                        ProjectStatus::Approved => 'success',
                     })
                     ->searchable()
                     ->sortable(),
@@ -54,8 +56,8 @@ class ProjectsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                \Filament\Tables\Filters\SelectFilter::make('status')
-                    ->options(\App\Enums\ProjectStatus::class),
+                SelectFilter::make('status')
+                    ->options(ProjectStatus::class),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Pages;
+// removed - ForumPage deleted
 
 use App\Models\ForumCategory;
 use Livewire\Attributes\Layout;

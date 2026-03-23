@@ -5,38 +5,43 @@ namespace App\Livewire\Pages;
 use App\Models\Event;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class EventsPage extends Component
 {
-    use WithPagination;
-
     public string $search = '';
 
-    public string $filter = 'all';
+    public int $selectedYear;
 
     public function mount()
     {
-        $this->filter = 'all';
+        $this->selectedYear = now()->year;
     }
 
     #[Layout('layouts.guest')]
     public function render()
     {
+        $years = Event::query()
+            ->published()
+            ->selectRaw("strftime('%Y', date) as year")
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->map(fn ($y) => (int) $y);
+
         $events = Event::query()
             ->published()
-            ->when($this->filter === 'upcoming', fn ($query) => $query->upcoming())
-            ->when($this->filter === 'past', fn ($query) => $query->past())
+            ->whereRaw("strftime('%Y', date) = ?", [(string) $this->selectedYear])
             ->when($this->search, fn ($query) => $query->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->search.'%')
                     ->orWhere('place', 'like', '%'.$this->search.'%')
                     ->orWhere('description', 'like', '%'.$this->search.'%');
             }))
             ->orderBy('date', 'desc')
-            ->paginate(5);
+            ->get();
 
         return view('livewire.pages.events-page', [
             'events' => $events,
+            'years' => $years,
         ]);
     }
 }

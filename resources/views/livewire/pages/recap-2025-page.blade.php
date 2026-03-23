@@ -83,11 +83,8 @@
                         :loop="index < images.length - 1"
                         :muted="isMuted"
                         playsinline
-                        preload="auto"
                         @loadeddata="onVideoReady(index, $event.target)"
                         @canplay="onVideoReady(index, $event.target)"
-                        @canplaythrough="onVideoReady(index, $event.target)"
-                        @play="onVideoReady(index, $event.target)"
                         @ended="onVideoEnded(index)"
                     ></video>
                     
@@ -264,20 +261,6 @@
                 this.currentIndex = 0;
                 setTimeout(() => {
                     this.startTimer();
-                    // Also check if first media is a video and trigger play
-                    this.$nextTick(() => {
-                        const firstMedia = this.images[0];
-                        const firstSrc = this.getMediaSrc(firstMedia);
-                        if (this.isVideo(firstSrc)) {
-                            // Give video time to load, then try to play
-                            setTimeout(() => {
-                                const videoElement = document.querySelector(`video[src*="${firstSrc}"]`);
-                                if (videoElement && videoElement.paused) {
-                                    videoElement.play().catch(() => {});
-                                }
-                            }, 300);
-                        }
-                    });
                 }, 500);
             },
 
@@ -314,31 +297,6 @@
             resetTimer() {
                 this.stopTimer();
                 this.startTimer();
-                // If new media is a video, ensure it starts playing
-                this.$nextTick(() => {
-                    const currentMedia = this.images[this.currentIndex];
-                    const currentSrc = this.getMediaSrc(currentMedia);
-                    if (this.isVideo(currentSrc)) {
-                        // Give video a moment to be in the DOM, then try to play
-                        setTimeout(() => {
-                            const videoEl = this.videos[this.currentIndex];
-                            if (videoEl) {
-                                if (videoEl.paused) {
-                                    videoEl.play().catch(() => {});
-                                }
-                            } else {
-                                // If video not in cache, find it in DOM
-                                const videoElement = document.querySelector(`video[src*="${currentSrc.split('/').pop()}"]`);
-                                if (videoElement) {
-                                    this.videos[this.currentIndex] = videoElement;
-                                    videoElement.muted = this.isMuted;
-                                    videoElement.loop = this.currentIndex < this.images.length - 1;
-                                    videoElement.play().catch(() => {});
-                                }
-                            }
-                        }, 200);
-                    }
-                });
             },
 
             next() {
@@ -415,32 +373,25 @@
                     this.videos[index] = videoElement;
                     // Set mute state
                     videoElement.muted = this.isMuted;
-                    // Set loop based on whether it's the last video (last video should not loop)
-                    const isLastVideo = index === this.images.length - 1;
-                    videoElement.loop = !isLastVideo;
-                    
-                    // Ensure video plays - always try to play, even if not paused
-                    const tryPlay = () => {
-                        if (videoElement.paused || videoElement.readyState < 2) {
-                            videoElement.play().catch((error) => {
-                                // If autoplay fails, try again after a short delay
-                                setTimeout(tryPlay, 500);
-                            });
-                        }
-                    };
-                    tryPlay();
+                    // Set loop based on whether it's the last video
+                    videoElement.loop = index < this.images.length - 1;
+                    // Ensure video plays
+                    if (videoElement.paused) {
+                        videoElement.play().catch((error) => {
+                            // Autoplay failed, log but continue
+                            console.log('Video autoplay failed:', error);
+                        });
+                    }
                 }
             },
 
             onVideoEnded(index) {
                 // When video ends, move to next or close if last
                 if (index === this.currentIndex) {
-                    const isLastSlide = this.currentIndex === this.images.length - 1;
-                    if (isLastSlide) {
-                        // Last slide ended, close and redirect
-                        this.close();
-                    } else {
+                    if (this.currentIndex < this.images.length - 1) {
                         this.next();
+                    } else {
+                        this.close();
                     }
                 }
             },

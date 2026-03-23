@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Category>
+ * @extends Factory<Category>
  */
 class CategoryFactory extends Factory
 {
@@ -20,7 +22,7 @@ class CategoryFactory extends Factory
 
         return [
             'name' => ucwords($name),
-            'slug' => \Illuminate\Support\Str::slug($name),
+            'slug' => Str::slug($name),
         ];
     }
 }

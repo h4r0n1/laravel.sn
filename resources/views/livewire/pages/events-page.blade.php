@@ -2,7 +2,7 @@
 <div class="min-h-screen">
 
     <!-- Hero Section -->
-    <section class="relative py-20 ">
+    <section class="relative py-20">
         <div class="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
             <div class="max-w-4xl">
                 <!-- Label -->
@@ -22,13 +22,12 @@
 
                 <!-- Subtitle -->
                 <p class="text-xl md:text-2xl text-gray-600 mb-16 leading-relaxed font-light max-w-2xl">
-                    {{ __('Discover our upcoming meetups, workshops and events from the Laravel community in Senegal') }}
-                    <span class="text-red-600 font-normal">Laravel</span> au Sénégal
+                    {{ __('Discover our upcoming meetups, workshops and events from the') }}
+                    <span class="text-red-600 font-normal">Laravel</span> {{ __('community in Senegal') }}
                 </p>
 
-                <!-- Search and Filter -->
-                <div class="flex flex-col sm:flex-row gap-4 mb-12">
-                    <!-- Search -->
+                <!-- Search -->
+                <div class="flex flex-col sm:flex-row gap-4 mb-10">
                     <div class="flex-1">
                         <div class="relative">
                             <input type="text" wire:model.live.debounce.300ms="search"
@@ -41,25 +40,44 @@
                             </svg>
                         </div>
                     </div>
-
-                    <!-- Filter -->
-                    <div class="sm:w-48">
-                        <select wire:model.live="filter"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            <option value="all">{{ __('All events') }}</option>
-                            <option value="upcoming">{{ __('Upcoming events') }}</option>
-                            <option value="past">{{ __('Past events') }}</option>
-                        </select>
-                    </div>
                 </div>
+
+                <!-- Year Filter Tabs -->
+                @if ($years->isNotEmpty())
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($years as $year)
+                            <button
+                                wire:click="$set('selectedYear', {{ $year }})"
+                                class="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 border
+                                    {{ $selectedYear == $year
+                                        ? 'bg-red-600 text-white border-red-600 shadow-sm'
+                                        : 'bg-white text-gray-600 border-gray-300 hover:border-red-400 hover:text-red-600' }}">
+                                {{ $year }}
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </section>
 
     <!-- Events Section -->
-    <section id="events" class="mb-12">
+    <section id="events" class="mb-20">
         <div class="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
-            @if ($events->count() > 0)
+
+            <!-- Section heading -->
+            <div class="flex items-center gap-4 mb-10">
+                <h2 class="text-2xl font-bold text-gray-900">
+                    {{ __('Events') }} <span class="text-red-600">{{ $selectedYear }}</span>
+                </h2>
+                @if ($events->isNotEmpty())
+                    <span class="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
+                        {{ $events->count() }} {{ $events->count() > 1 ? __('events') : __('event') }}
+                    </span>
+                @endif
+            </div>
+
+            @if ($events->isNotEmpty())
                 <!-- Events Grid -->
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($events as $event)
@@ -75,9 +93,8 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round"
-                                        class="lucide lucide-calendar-icon lucide-calendar h-4 w-4 shrink-0 text-[hsl(0,84%,50%)]/60">
-                                        <path d="M8 2v4" />
-                                        <path d="M16 2v4" />
+                                        class="h-4 w-4 shrink-0 text-[hsl(0,84%,50%)]/60">
+                                        <path d="M8 2v4" /><path d="M16 2v4" />
                                         <rect width="18" height="18" x="3" y="4" rx="2" />
                                         <path d="M3 10h18" />
                                     </svg>
@@ -87,9 +104,8 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round"
-                                        class="lucide lucide-map-pin-icon lucide-map-pin h-4 w-4 shrink-0 text-[hsl(0,84%,50%)]/60">
-                                        <path
-                                            d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+                                        class="h-4 w-4 shrink-0 text-[hsl(0,84%,50%)]/60">
+                                        <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
                                         <circle cx="12" cy="10" r="3" />
                                     </svg>
                                     <span>{{ $event->place }}</span>
@@ -101,26 +117,18 @@
                             </p>
 
                             <a wire:navigate href="{{ route('event.show', $event) }}"
-                                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-[hsl(0,84%,50%)] text-[hsl(0,0%,100%)] hover:bg-[hsl(0,84%,50%)]/90 h-10 px-4 py-2">
+                                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-[hsl(0,84%,50%)] text-white hover:bg-[hsl(0,84%,50%)]/90 h-10 px-4 py-2">
                                 {{ __('View details') }}
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    class="lucide lucide-arrow-right-icon lucide-arrow-right h-4 w-4 transition-transform group-hover:translate-x-1">
-                                    <path d="M5 12h14" />
-                                    <path d="m12 5 7 7-7 7" />
+                                    class="h-4 w-4 transition-transform group-hover:translate-x-1">
+                                    <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
                                 </svg>
                             </a>
                         </article>
                     @endforeach
                 </div>
-
-                <!-- Pagination -->
-                @if ($events->hasPages())
-                    <div class="mt-12">
-                        {{ $events->links() }}
-                    </div>
-                @endif
             @else
                 <!-- Empty State -->
                 <div class="text-center py-16 max-w-2xl mx-auto">
@@ -134,9 +142,9 @@
                         {{ __('No event found') }}</h3>
                     <p class="text-lg md:text-xl text-gray-600 mb-10 font-light leading-relaxed">
                         @if ($search)
-                            {{ __('No event found for your search') }} "{{ $search }}".
+                            {{ __('No event found for your search') }} "{{ $search }}" {{ __('in') }} {{ $selectedYear }}.
                         @else
-                            {{ __('No event is currently scheduled') }}.
+                            {{ __('No event is currently scheduled') }} {{ __('for') }} {{ $selectedYear }}.
                         @endif
                     </p>
                     @if ($search)

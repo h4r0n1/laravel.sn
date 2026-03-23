@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Enums\SubscriberStatus;
+use App\Models\NewsletterSubscription;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\NewsletterSubscription>
+ * @extends Factory<NewsletterSubscription>
  */
 class NewsletterSubscriptionFactory extends Factory
 {

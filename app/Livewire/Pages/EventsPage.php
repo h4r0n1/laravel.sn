@@ -22,15 +22,15 @@ class EventsPage extends Component
     {
         $years = Event::query()
             ->published()
-            ->selectRaw("strftime('%Y', date) as year")
-            ->distinct()
-            ->orderByDesc('year')
-            ->pluck('year')
-            ->map(fn ($y) => (int) $y);
+            ->pluck('date')
+            ->map(fn ($date) => (int) $date->year)
+            ->unique()
+            ->sortDesc()
+            ->values();
 
         $events = Event::query()
             ->published()
-            ->whereRaw("strftime('%Y', date) = ?", [(string) $this->selectedYear])
+            ->whereYear('date', $this->selectedYear)
             ->when($this->search, fn ($query) => $query->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->search.'%')
                     ->orWhere('place', 'like', '%'.$this->search.'%')

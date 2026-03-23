@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Prism;
 use Prism\Prism\ValueObjects\ProviderTool;
+use Spatie\Tags\Tag;
 
 class ArticleForm
 {
@@ -156,7 +157,7 @@ class ArticleForm
                 SpatieTagsInput::make('tags')
                     ->label('Tags')
                     ->type('article')
-                    ->suggestions(fn () => \Spatie\Tags\Tag::where('type', 'article')->pluck('name')->toArray()),
+                    ->suggestions(fn () => Tag::where('type', 'article')->pluck('name')->toArray()),
 
                 Select::make('status')
                     ->options(ArticleStatus::class)

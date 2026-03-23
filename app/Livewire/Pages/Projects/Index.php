@@ -16,7 +16,7 @@ class Index extends Component
     {
         $user = auth()->user();
 
-        /** @var \App\Models\Project $project */
+        /** @var Project $project */
         $project = Project::findOrFail($projectId);
 
         if ($user->hasVotedFor($project)) {

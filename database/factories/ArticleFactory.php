@@ -4,10 +4,11 @@ namespace Database\Factories;
 
 use App\Enums\ArticleStatus;
 use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Article>
+ * @extends Factory<Article>
  */
 class ArticleFactory extends Factory
 {
@@ -21,7 +22,7 @@ class ArticleFactory extends Factory
             'content' => '<p>'.$this->faker->paragraphs(3, true).'</p>',
             'status' => ArticleStatus::Published,
             'published_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'category_id' => \App\Models\Category::factory(),
+            'category_id' => Category::factory(),
         ];
     }
 
